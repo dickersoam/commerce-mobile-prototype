@@ -488,7 +488,23 @@ export const USER = {
 
 export const RECENT_SEARCHES = ["96043504", "PFIZER", "C9300-48P-A"];
 
+// Recently viewed deals for the Home v2 landing (references real quotes so
+// tapping a row opens the correct deal).
+export const RECENTLY_VIEWED: { dealId: string; when: string }[] = [
+  { dealId: "99961001", when: "2h ago" },
+  { dealId: "96043504", when: "Yesterday" },
+  { dealId: "99418820", when: "2d ago" },
+];
+
 export const fmtMoney = (n: number) =>
   "$" + money(n).toLocaleString("en-US", { maximumFractionDigits: 0 });
+
+// Compact money (e.g. $571K, $1.2M) for the Home stats strip.
+export const fmtMoneyShort = (n: number) =>
+  "$" +
+  new Intl.NumberFormat("en-US", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(n);
 
 export const fmtDate = (iso: string) => iso;
