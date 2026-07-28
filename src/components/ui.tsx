@@ -13,6 +13,7 @@ import {
   IconMic,
 } from "./icons";
 import { DealStatus } from "../data";
+import { isColor } from "../theme";
 
 /* ---------- Status bar ---------- */
 export function StatusBar({ dark = false }: { dark?: boolean }) {
@@ -86,7 +87,7 @@ export function TopBar({
 }
 
 /* ---------- Status pill ---------- */
-const statusStyle: Record<DealStatus, string> = {
+const statusStyleMono: Record<DealStatus, string> = {
   "Needs Approval": "bg-ink text-white",
   "Approval in progress": "bg-ink text-white",
   "More info required": "bg-ink text-white",
@@ -95,6 +96,18 @@ const statusStyle: Record<DealStatus, string> = {
   Disapproved: "bg-soft text-ink border border-hair",
   Draft: "bg-soft text-ink border border-hair",
 };
+
+const statusStyleColor: Record<DealStatus, string> = {
+  "Needs Approval": "bg-badbg text-badtx",
+  "Approval in progress": "bg-primarybg text-primary",
+  "More info required": "bg-warnbg text-warntx",
+  "Not submitted": "bg-tint text-sec",
+  Approved: "bg-okbg text-oktx",
+  Disapproved: "bg-badbg text-badtx",
+  Draft: "bg-tint text-sec",
+};
+
+const statusStyle = isColor ? statusStyleColor : statusStyleMono;
 
 export function StatusPill({
   status,
@@ -127,7 +140,9 @@ export function Chip({
       onClick={onClick}
       className={`px-4 py-2 rounded-full text-[13px] font-semibold whitespace-nowrap transition ${
         active
-          ? "bg-ink text-white"
+          ? isColor
+            ? "bg-primary text-white"
+            : "bg-ink text-white"
           : "bg-white text-ink border border-hair active:bg-soft"
       }`}
     >
@@ -153,7 +168,11 @@ export function SearchField({
   readOnly?: boolean;
 }) {
   return (
-    <div className="h-14 px-4 flex items-center gap-3 rounded-2xl border border-ink/80 bg-white">
+    <div
+      className={`h-14 px-4 flex items-center gap-3 rounded-2xl bg-white border ${
+        isColor ? "border-line" : "border-ink/80"
+      }`}
+    >
       <IconSearch size={20} className="text-mute shrink-0" />
       <input
         value={value}
@@ -163,7 +182,12 @@ export function SearchField({
         placeholder={placeholder}
         className="flex-1 bg-transparent outline-none text-[15px] text-ink placeholder:text-mute"
       />
-      <button onClick={onMic} className="text-ink shrink-0 active:opacity-60">
+      <button
+        onClick={onMic}
+        className={`shrink-0 active:opacity-60 ${
+          isColor ? "text-primary" : "text-ink"
+        }`}
+      >
         <IconMic size={20} />
       </button>
     </div>
@@ -176,7 +200,9 @@ export function TalkFab() {
   return (
     <button
       onClick={() => setVoice(true)}
-      className="absolute right-4 bottom-[104px] z-30 h-[46px] pl-4 pr-5 rounded-full bg-ink text-white flex items-center gap-2 shadow-fab active:scale-95 transition"
+      className={`absolute right-4 bottom-[104px] z-30 h-[46px] pl-4 pr-5 rounded-full text-white flex items-center gap-2 shadow-fab active:scale-95 transition ${
+        isColor ? "bg-primary" : "bg-ink"
+      }`}
     >
       <IconWave size={18} className="text-white" />
       <span className="text-[15px] font-semibold">Talk</span>
@@ -285,16 +311,27 @@ export function Button({
 }: {
   children: React.ReactNode;
   onClick?: () => void;
-  variant?: "primary" | "secondary";
+  variant?: "primary" | "secondary" | "success" | "danger";
   disabled?: boolean;
   className?: string;
 }) {
-  const styles =
-    variant === "primary"
-      ? disabled
-        ? "bg-hair text-mute"
-        : "bg-ink text-white active:opacity-90"
-      : "bg-white text-ink border border-ink active:bg-soft";
+  const primaryEnabled = isColor
+    ? "bg-primary text-white active:opacity-90"
+    : "bg-ink text-white active:opacity-90";
+  const styleByVariant: Record<string, string> = {
+    primary: disabled ? "bg-hair text-mute" : primaryEnabled,
+    secondary: isColor
+      ? "bg-white text-ink border border-line active:bg-soft"
+      : "bg-white text-ink border border-ink active:bg-soft",
+    // success/danger fall back to the mono primary/secondary look when not colored
+    success: isColor
+      ? "bg-ok text-white active:opacity-90"
+      : "bg-ink text-white active:opacity-90",
+    danger: isColor
+      ? "bg-white text-bad border border-bad active:bg-badbg"
+      : "bg-white text-ink border border-ink active:bg-soft",
+  };
+  const styles = styleByVariant[variant] ?? primaryEnabled;
   return (
     <button
       onClick={disabled ? undefined : onClick}
