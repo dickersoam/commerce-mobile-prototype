@@ -237,11 +237,7 @@ export function TabBar({ active }: { active: string }) {
               onClick={() => setVoice(true)}
               className="flex flex-col items-center gap-1 -mt-2"
             >
-              <span
-                className={`w-[50px] h-[50px] rounded-full text-white flex items-center justify-center shadow-fab ${
-                  isColor ? "bg-primary" : "bg-ink"
-                }`}
-              >
+              <span className="w-[50px] h-[50px] rounded-full bg-ink text-white flex items-center justify-center shadow-fab">
                 <t.Icon size={26} />
               </span>
               <span className="text-[11px] text-mute">{t.label}</span>
@@ -258,23 +254,15 @@ export function TabBar({ active }: { active: string }) {
             <span className="relative">
               <t.Icon
                 size={22}
-                className={
-                  isActive ? (isColor ? "text-primary" : "text-ink") : "text-mute"
-                }
+                className={isActive ? "text-ink" : "text-mute"}
               />
               {t.key === "notifications" && hasUnread && (
-                <span
-                  className={`absolute -top-0.5 -right-1 w-2 h-2 rounded-full border border-white ${
-                    isColor ? "bg-bad" : "bg-ink"
-                  }`}
-                />
+                <span className="absolute -top-0.5 -right-1 w-2 h-2 rounded-full bg-ink border border-white" />
               )}
             </span>
             <span
               className={`text-[11px] ${
-                isActive
-                  ? `font-semibold ${isColor ? "text-primary" : "text-ink"}`
-                  : "text-mute"
+                isActive ? "text-ink font-semibold" : "text-mute"
               }`}
             >
               {t.label}
