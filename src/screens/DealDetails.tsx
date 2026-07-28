@@ -76,7 +76,7 @@ export default function DealDetails() {
           Disapprove
         </Button>
         <Button
-          variant={isColor ? "success" : "primary"}
+          variant="primary"
           onClick={() => nav("bom", { dealId: q.dealId })}
         >
           Approve
