@@ -3,6 +3,7 @@ import { useApp } from "../store";
 import { StatusBar, TabBar, TalkFab, StatusPill, Chip } from "../components/ui";
 import { IconSearch, IconSliders, IconArrowDown } from "../components/icons";
 import { QUOTES, DealStatus } from "../data";
+import { isColor } from "../theme";
 
 const FILTERS = ["All", "Needs action", "Approved", "Disapproved", "Drafts"] as const;
 type Filter = (typeof FILTERS)[number];
@@ -54,7 +55,9 @@ export default function Quotes() {
           </div>
           <button
             onClick={() => openModal("filter")}
-            className="h-11 px-4 rounded-xl bg-ink text-white text-[14px] font-semibold flex items-center gap-2"
+            className={`h-11 px-4 rounded-xl text-white text-[14px] font-semibold flex items-center gap-2 ${
+              isColor ? "bg-primary" : "bg-ink"
+            }`}
           >
             <IconSliders size={16} className="text-white" /> Filters
           </button>
@@ -64,6 +67,7 @@ export default function Quotes() {
             <Chip
               key={f}
               label={f}
+              tone="neutral"
               active={filter === f}
               onClick={() => setFilter(f)}
             />

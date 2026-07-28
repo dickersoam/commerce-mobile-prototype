@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useApp } from "../store";
 import { StatusBar, TabBar, TalkFab, Chip } from "../components/ui";
 import { NOTIFICATIONS, AppNotification } from "../data";
+import { isColor } from "../theme";
 
 const FILTERS = ["All", "Approvals", "Proxy", "Status", "Discounts"] as const;
 type Filter = (typeof FILTERS)[number];
@@ -33,7 +34,9 @@ export default function Notifications() {
           </h1>
           <button
             onClick={markAllRead}
-            className="text-[13px] font-medium text-ink active:opacity-60"
+            className={`text-[13px] font-semibold active:opacity-60 ${
+              isColor ? "text-primary" : "text-ink"
+            }`}
           >
             Mark all read
           </button>
@@ -43,6 +46,7 @@ export default function Notifications() {
             <Chip
               key={f}
               label={f}
+              tone="neutral"
               active={filter === f}
               onClick={() => setFilter(f)}
             />

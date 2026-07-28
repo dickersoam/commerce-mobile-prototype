@@ -130,20 +130,22 @@ export function Chip({
   label,
   active,
   onClick,
+  tone = "primary",
 }: {
   label: string;
   active?: boolean;
   onClick?: () => void;
+  // "primary" tints the active chip blue in the colored theme (BOM categories);
+  // "neutral" keeps the active chip dark ink in both themes (Quotes / Notifications filters).
+  tone?: "primary" | "neutral";
 }) {
+  const activeCls =
+    isColor && tone === "primary" ? "bg-primary text-white" : "bg-ink text-white";
   return (
     <button
       onClick={onClick}
       className={`px-4 py-2 rounded-full text-[13px] font-semibold whitespace-nowrap transition ${
-        active
-          ? isColor
-            ? "bg-primary text-white"
-            : "bg-ink text-white"
-          : "bg-white text-ink border border-hair active:bg-soft"
+        active ? activeCls : "bg-white text-ink border border-hair active:bg-soft"
       }`}
     >
       {label}
