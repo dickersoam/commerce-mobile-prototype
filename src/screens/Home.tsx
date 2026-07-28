@@ -3,6 +3,7 @@ import { useApp } from "../store";
 import { StatusBar, TabBar, TalkFab, StatusPill } from "../components/ui";
 import { IconSearch, IconMic, IconChevron, IconArrowDown } from "../components/icons";
 import { QUOTES, RECENT_SEARCHES } from "../data";
+import { isColor } from "../theme";
 
 export default function Home() {
   const { nav, setVoice } = useApp();
@@ -22,7 +23,9 @@ export default function Home() {
 
         <button
           onClick={() => nav("searchResults")}
-          className="w-full h-14 px-4 flex items-center gap-3 rounded-2xl border border-ink/80 bg-white text-left"
+          className={`w-full h-14 px-4 flex items-center gap-3 rounded-2xl bg-white text-left border ${
+            isColor ? "border-line" : "border-ink/80"
+          }`}
         >
           <IconSearch size={20} className="text-mute" />
           <span className="flex-1 text-[15px] text-mute truncate">
@@ -33,7 +36,7 @@ export default function Home() {
               e.stopPropagation();
               setVoice(true);
             }}
-            className="text-ink"
+            className={isColor ? "text-primary" : "text-ink"}
           >
             <IconMic size={20} />
           </span>

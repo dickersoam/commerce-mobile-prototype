@@ -29,11 +29,18 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Build
+      - name: Build mono (root)
         run: npm run build
         env:
-          # Serve assets from /<repo>/ on Pages.
+          # Mono prototype served from /<repo>/ on Pages.
           VITE_BASE: /${{ github.event.repository.name }}/
+      - name: Build colored v2 (/v2)
+        # Second (colored) build emitted into dist/v2 so it is served from
+        # /<repo>/v2/. tsc already ran in the mono build, so run vite directly.
+        run: npx vite build --outDir dist/v2
+        env:
+          VITE_BASE: /${{ github.event.repository.name }}/v2/
+          VITE_THEME: color
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

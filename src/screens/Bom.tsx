@@ -3,6 +3,7 @@ import { useApp } from "../store";
 import { StatusBar, TopBar, TalkFab, Button, Chip } from "../components/ui";
 import { IconChevron, IconSearch, IconMic } from "../components/icons";
 import { Category, BomLine, fmtMoney } from "../data";
+import { isColor } from "../theme";
 
 const CAT_LABEL: Record<Category, string> = {
   Products: "PRODUCTS · HARDWARE & SOFTWARE",
@@ -50,7 +51,11 @@ export default function Bom() {
       {/* sticky search + chips */}
       <div className="px-[22px] pt-3 pb-2 bg-white">
         <div className="h-13 py-1">
-          <div className="h-14 px-4 flex items-center gap-3 rounded-2xl border border-ink/80 bg-white">
+          <div
+            className={`h-14 px-4 flex items-center gap-3 rounded-2xl bg-white border ${
+              isColor ? "border-line" : "border-ink/80"
+            }`}
+          >
             <IconSearch size={20} className="text-mute shrink-0" />
             <input
               value={search}
@@ -58,7 +63,10 @@ export default function Bom() {
               placeholder="Search by Deal ID, quote, SKU, customer…"
               className="flex-1 bg-transparent outline-none text-[15px] text-ink placeholder:text-mute"
             />
-            <button onClick={() => setVoice(true)} className="text-ink shrink-0">
+            <button
+              onClick={() => setVoice(true)}
+              className={`shrink-0 ${isColor ? "text-primary" : "text-ink"}`}
+            >
               <IconMic size={20} />
             </button>
           </div>
@@ -101,7 +109,11 @@ export default function Bom() {
                 </span>
                 <span className="text-[11px] text-mute flex items-center gap-2">
                   {sum ? `${sum.lines} · ${fmtMoney(sum.netExt)}` : ""}
-                  <span className="text-ink font-semibold flex items-center">
+                  <span
+                    className={`font-semibold flex items-center ${
+                      isColor ? "text-primary" : "text-ink"
+                    }`}
+                  >
                     Edit % <IconChevron size={13} />
                   </span>
                 </span>
@@ -165,7 +177,11 @@ function LineRow({
           {line.desc ? ` · ${line.desc}` : ""}
         </div>
         {edited && (
-          <span className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-ink text-white text-[10.5px] font-semibold">
+          <span
+            className={`inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full text-[10.5px] font-semibold ${
+              isColor ? "bg-primary text-white" : "bg-ink text-white"
+            }`}
+          >
             ✎ Edited
           </span>
         )}

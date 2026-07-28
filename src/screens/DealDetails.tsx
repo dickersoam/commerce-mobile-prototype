@@ -3,6 +3,7 @@ import { useApp } from "../store";
 import { StatusBar, TopBar, StatusPill, Button } from "../components/ui";
 import { IconChevron } from "../components/icons";
 import { QUOTES, fmtMoney } from "../data";
+import { isColor } from "../theme";
 
 export default function DealDetails() {
   const { current, nav, back, toast } = useApp();
@@ -57,17 +58,29 @@ export default function DealDetails() {
             </div>
             <div className="text-[13px] text-mute">{q.avgDiscountPct}% Discount</div>
           </div>
-          <span className="text-[14px] font-semibold text-ink flex items-center gap-1">
+          <span
+            className={`text-[14px] font-semibold flex items-center gap-1 ${
+              isColor ? "text-primary" : "text-ink"
+            }`}
+          >
             Review &amp; edit <IconChevron size={16} />
           </span>
         </button>
       </div>
 
       <div className="px-[22px] pb-6 pt-2 grid grid-cols-2 gap-3">
-        <Button variant="secondary" onClick={() => { toast("Deal disapproved"); back(); }}>
+        <Button
+          variant={isColor ? "danger" : "secondary"}
+          onClick={() => { toast("Deal disapproved"); back(); }}
+        >
           Disapprove
         </Button>
-        <Button onClick={() => nav("bom", { dealId: q.dealId })}>Approve</Button>
+        <Button
+          variant={isColor ? "success" : "primary"}
+          onClick={() => nav("bom", { dealId: q.dealId })}
+        >
+          Approve
+        </Button>
       </div>
     </div>
   );
