@@ -5,7 +5,7 @@ import { IconClose } from "../components/icons";
 import { fmtMoney } from "../data";
 
 export default function Submit() {
-  const { activeQuote: q, state, back, nav, setSubmitted } = useApp();
+  const { activeQuote: q, state, back, nav, toast } = useApp();
   const [note, setNote] = useState("");
 
   const edits = Object.entries(state.lineEdits);
@@ -29,7 +29,7 @@ export default function Submit() {
       <div className="bg-white rounded-t-sheet px-5 pt-3 pb-6 animate-sheet">
         <div className="w-10 h-[5px] rounded-full bg-hair mx-auto mb-3" />
         <div className="flex items-center justify-center relative">
-          <h2 className="text-[19px] font-bold text-ink">Submit for approval?</h2>
+          <h2 className="text-[19px] font-bold text-ink">Confirm Discount change</h2>
           <button onClick={back} className="absolute right-0 text-mute p-1">
             <IconClose size={20} />
           </button>
@@ -60,11 +60,11 @@ export default function Submit() {
           </Button>
           <Button
             onClick={() => {
-              setSubmitted(true);
-              nav("submitted");
+              toast("Discount change saved");
+              nav("dealDetails", { dealId: q.dealId });
             }}
           >
-            Submit
+            Confirm
           </Button>
         </div>
       </div>
