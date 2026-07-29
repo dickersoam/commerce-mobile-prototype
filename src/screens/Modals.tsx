@@ -259,30 +259,38 @@ function FilterSheet() {
 }
 
 /* ---------------- Approve / Disapprove confirmation ---------------- */
-const DISAPPROVE_REASONS = [
-  "Pricing too aggressive",
-  "Needs margin justification",
-  "Missing documentation",
-  "Non-standard terms",
-];
-
 function DecisionConfirmSheet({ kind }: { kind: "approve" | "disapprove" }) {
   const { state, closeModal, nav } = useApp();
   const approve = kind === "approve";
   const dealId = state.modalParams?.dealId ?? "96043504";
   const q = QUOTES.find((d) => d.dealId === dealId) ?? QUOTES[0];
-  const [reason, setReason] = useState("");
 
-  const confirm = () =>
+  // Per-category discounts, reflecting any live edits (falls back to defaults).
+  const discounts =
+    q.categories.length > 0
+      ? q.categories
+          .map((c) => state.categoryEdits[c.category] ?? defaultPct[c.category])
+          .map((p) => `${p}%`)
+          .join(" / ")
+      : `${q.avgDiscountPct}%`;
+
+  const [note, setNote] = useState("");
+  const [reason, setReason] = useState("");
+  const canConfirm = approve || reason.trim().length > 0;
+
+  const confirm = () => {
+    if (!canConfirm) return;
     nav("decision", {
       dealId: q.dealId,
       outcome: approve ? "approved" : "disapproved",
+      reason: approve ? note : reason,
     });
+  };
 
   return (
-    <Sheet onClose={closeModal} maxH={approve ? "58%" : "82%"}>
+    <Sheet onClose={closeModal} maxH={approve ? "70%" : "72%"}>
       <div className="flex items-center justify-between">
-        <h2 className="text-[18px] font-bold text-ink">
+        <h2 className="text-[20px] font-bold text-ink">
           {approve ? "Approve this quote?" : "Disapprove this quote?"}
         </h2>
         <button onClick={closeModal} className="text-mute p-1">
@@ -290,58 +298,74 @@ function DecisionConfirmSheet({ kind }: { kind: "approve" | "disapprove" }) {
         </button>
       </div>
 
-      <div className="mt-3 rounded-xl bg-soft px-4 py-3">
-        <div className="text-[13px] font-bold text-ink">Deal {q.dealId}</div>
-        <div className="text-[12px] text-mute mt-0.5">
-          {q.customer} · {fmtMoney(q.netTotal)} net
-        </div>
+      <div className="mt-4 rounded-xl bg-soft px-4 py-3 divide-y divide-hair">
+        <SummaryRow label="Deal ID" value={q.dealId} />
+        <SummaryRow label="End customer" value={q.customer} />
+        <SummaryRow label="Quote total" value={fmtMoney(q.netTotal)} />
+        <SummaryRow label="Discounts" value={discounts} />
       </div>
 
-      <p className="mt-3 text-[13px] text-mute leading-snug">
-        {approve
-          ? "Approving confirms the quote and notifies the requester. This can’t be undone from here."
-          : "Disapproving returns the quote to the requester. Add a reason so they know what to fix."}
-      </p>
-
-      {!approve && (
-        <div className="mt-4">
-          <div className="text-[10.5px] font-semibold tracking-wide text-mute">
-            REASON (SHARED WITH REQUESTER)
+      {approve ? (
+        <>
+          <p className="mt-4 text-[13px] text-mute leading-snug">
+            You’re approving the current discounts ({discounts}). Your decision
+            will be submitted and the requester notified.
+          </p>
+          <div className="mt-4">
+            <label className="text-[13px] font-semibold text-ink">
+              Comments (optional)
+            </label>
+            <textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Add a note for the requester…"
+              rows={3}
+              className="mt-2 w-full rounded-xl bg-soft p-3 text-[14px] text-ink placeholder:text-mute outline-none resize-none focus:ring-1 focus:ring-ink"
+            />
           </div>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {DISAPPROVE_REASONS.map((r) => (
-              <button
-                key={r}
-                onClick={() => setReason(r)}
-                className={`px-3 py-1.5 rounded-full text-[12px] font-semibold border transition ${
-                  reason === r
-                    ? "bg-ink text-white border-ink"
-                    : "bg-white text-ink border-hair active:bg-soft"
-                }`}
-              >
-                {r}
-              </button>
-            ))}
+        </>
+      ) : (
+        <>
+          <div className="mt-4">
+            <label className="text-[10.5px] font-semibold tracking-wide text-mute">
+              REASON (REQUIRED)
+            </label>
+            <input
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="e.g. Discount exceeds policy threshold"
+              className="mt-2 w-full rounded-xl bg-soft px-3.5 py-3 text-[14px] text-ink placeholder:text-mute outline-none focus:ring-1 focus:ring-ink"
+            />
           </div>
-          <textarea
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            placeholder="Add a note (optional)"
-            rows={3}
-            className="mt-3 w-full rounded-xl border border-hair p-3 text-[14px] text-ink placeholder:text-mute outline-none resize-none focus:border-ink"
-          />
-        </div>
+          <p className="mt-3 text-[13px] text-mute leading-snug">
+            Add a reason so the requester knows what to revise. Your decision
+            will be submitted once confirmed.
+          </p>
+        </>
       )}
 
       <div className="mt-5 grid grid-cols-2 gap-3">
         <Button variant="secondary" onClick={closeModal}>
           Cancel
         </Button>
-        <Button variant={approve ? "primary" : "danger"} onClick={confirm}>
-          {approve ? "Approve" : "Disapprove"}
+        <Button
+          variant={approve ? "primary" : "danger"}
+          disabled={!canConfirm}
+          onClick={confirm}
+        >
+          {approve ? "Confirm approval" : "Confirm disapproval"}
         </Button>
       </div>
     </Sheet>
+  );
+}
+
+function SummaryRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="py-2 flex items-center justify-between gap-4 first:pt-0 last:pb-0">
+      <span className="text-[13px] text-mute shrink-0">{label}</span>
+      <span className="text-[13px] font-bold text-ink text-right">{value}</span>
+    </div>
   );
 }
 
