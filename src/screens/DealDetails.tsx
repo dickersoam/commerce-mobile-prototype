@@ -6,7 +6,7 @@ import { QUOTES, fmtMoney } from "../data";
 import { isColor } from "../theme";
 
 export default function DealDetails() {
-  const { current, nav, back, toast } = useApp();
+  const { current, nav, back, openModal } = useApp();
   const dealId = current.params?.dealId ?? "96043504";
   const q = QUOTES.find((d) => d.dealId === dealId) ?? QUOTES[0];
 
@@ -71,13 +71,13 @@ export default function DealDetails() {
       <div className="px-[22px] pb-6 pt-2 grid grid-cols-2 gap-3">
         <Button
           variant={isColor ? "danger" : "secondary"}
-          onClick={() => { toast("Deal disapproved"); back(); }}
+          onClick={() => openModal("disapproveConfirm", { dealId: q.dealId })}
         >
           Disapprove
         </Button>
         <Button
           variant="primary"
-          onClick={() => nav("bom", { dealId: q.dealId })}
+          onClick={() => openModal("approveConfirm", { dealId: q.dealId })}
         >
           Approve
         </Button>
