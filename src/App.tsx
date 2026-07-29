@@ -10,6 +10,7 @@ import Bom from "./screens/Bom";
 import LineDiscount from "./screens/LineDiscount";
 import Submit from "./screens/Submit";
 import Submitted from "./screens/Submitted";
+import Decision from "./screens/Decision";
 import Quotes from "./screens/Quotes";
 import Notifications from "./screens/Notifications";
 import Profile from "./screens/Profile";
@@ -25,6 +26,7 @@ const screens: Record<ScreenKey, React.FC> = {
   lineDiscount: LineDiscount,
   submit: Submit,
   submitted: Submitted,
+  decision: Decision,
   quotes: Quotes,
   quoteResult: SearchResults,
   notifications: Notifications,

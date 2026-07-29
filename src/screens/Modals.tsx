@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useApp } from "../store";
 import { Sheet, Button } from "../components/ui";
 import { IconClose, IconInfo, IconCheck } from "../components/icons";
-import { Category, fmtMoney } from "../data";
+import { Category, fmtMoney, QUOTES } from "../data";
 
 export default function Modals() {
   const { state } = useApp();
@@ -10,6 +10,9 @@ export default function Modals() {
   if (state.modal === "categoryDiscount") return <CategoryDiscountSheet />;
   if (state.modal === "filter") return <FilterSheet />;
   if (state.modal === "sort") return <SortSheet />;
+  if (state.modal === "approveConfirm") return <DecisionConfirmSheet kind="approve" />;
+  if (state.modal === "disapproveConfirm")
+    return <DecisionConfirmSheet kind="disapprove" />;
   return null;
 }
 
@@ -252,6 +255,118 @@ function FilterSheet() {
         Apply
       </Button>
     </Sheet>
+  );
+}
+
+/* ---------------- Approve / Disapprove confirmation ---------------- */
+function DecisionConfirmSheet({ kind }: { kind: "approve" | "disapprove" }) {
+  const { state, closeModal, nav } = useApp();
+  const approve = kind === "approve";
+  const dealId = state.modalParams?.dealId ?? "96043504";
+  const q = QUOTES.find((d) => d.dealId === dealId) ?? QUOTES[0];
+
+  // Per-category discounts, reflecting any live edits (falls back to defaults).
+  const discounts =
+    q.categories.length > 0
+      ? q.categories
+          .map((c) => state.categoryEdits[c.category] ?? defaultPct[c.category])
+          .map((p) => `${p}%`)
+          .join(" / ")
+      : `${q.avgDiscountPct}%`;
+
+  const [note, setNote] = useState("");
+  const [reason, setReason] = useState("");
+  const canConfirm = approve || reason.trim().length > 0;
+
+  const confirm = () => {
+    if (!canConfirm) return;
+    if (approve) {
+      // Approving pushes the quote up the chain → always land on the submitted page.
+      nav("submitted", { dealId: q.dealId });
+      return;
+    }
+    nav("decision", { dealId: q.dealId, outcome: "disapproved", reason });
+  };
+
+  return (
+    <Sheet onClose={closeModal} maxH={approve ? "70%" : "72%"}>
+      <div className="flex items-center justify-between">
+        <h2 className="text-[20px] font-bold text-ink">
+          {approve ? "Approve this quote?" : "Disapprove this quote?"}
+        </h2>
+        <button onClick={closeModal} className="text-mute p-1">
+          <IconClose size={20} />
+        </button>
+      </div>
+
+      <div className="mt-4 rounded-xl bg-soft px-4 py-3 divide-y divide-hair">
+        <SummaryRow label="Deal ID" value={q.dealId} />
+        <SummaryRow label="End customer" value={q.customer} />
+        <SummaryRow label="Quote total" value={fmtMoney(q.netTotal)} />
+        <SummaryRow label="Discounts" value={discounts} />
+      </div>
+
+      {approve ? (
+        <>
+          <p className="mt-4 text-[13px] text-mute leading-snug">
+            You’re approving the current discounts ({discounts}). Your decision
+            will be submitted and the requester notified.
+          </p>
+          <div className="mt-4">
+            <label className="text-[13px] font-semibold text-ink">
+              Comments (optional)
+            </label>
+            <textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Add a note for the requester…"
+              rows={3}
+              className="mt-2 w-full rounded-xl bg-soft p-3 text-[14px] text-ink placeholder:text-mute outline-none resize-none focus:ring-1 focus:ring-ink"
+            />
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="mt-4">
+            <label className="text-[10.5px] font-semibold tracking-wide text-mute">
+              REASON (REQUIRED)
+            </label>
+            <input
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="e.g. Discount exceeds policy threshold"
+              className="mt-2 w-full rounded-xl bg-soft px-3.5 py-3 text-[14px] text-ink placeholder:text-mute outline-none focus:ring-1 focus:ring-ink"
+            />
+          </div>
+          <p className="mt-3 text-[13px] text-mute leading-snug">
+            Add a reason so the requester knows what to revise. Your decision
+            will be submitted once confirmed.
+          </p>
+        </>
+      )}
+
+      <div className="mt-5 grid grid-cols-2 gap-3">
+        <Button variant="secondary" onClick={closeModal}>
+          Cancel
+        </Button>
+        <Button
+          variant={approve ? "primary" : "danger"}
+          disabled={!canConfirm}
+          onClick={confirm}
+        >
+          {approve ? "Confirm approval" : "Confirm disapproval"}
+        </Button>
+      </div>
+    </Sheet>
+  );
+}
+
+function SummaryRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="py-2 flex items-center justify-between gap-4 first:pt-0 last:pb-0">
+      <span className="text-[13px] text-mute shrink-0">{label}</span>
+      <span className="text-[13px] font-bold text-ink text-right">{value}</span>
+    </div>
   );
 }
 

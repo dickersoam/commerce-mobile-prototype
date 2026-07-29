@@ -15,6 +15,7 @@ export type ScreenKey =
   | "lineDiscount"
   | "submit"
   | "submitted"
+  | "decision"
   | "quotes"
   | "quoteResult"
   | "notifications"
@@ -28,6 +29,8 @@ export type ModalKey =
   | "categoryDiscount"
   | "filter"
   | "sort"
+  | "approveConfirm"
+  | "disapproveConfirm"
   | null;
 
 export interface LineEdit {
