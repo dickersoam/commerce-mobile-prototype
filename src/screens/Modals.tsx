@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { useApp } from "../store";
 import { Sheet, Button } from "../components/ui";
-import { IconClose, IconInfo, IconCheck } from "../components/icons";
+import { IconClose, IconCheck } from "../components/icons";
 import { Category, fmtMoney, QUOTES } from "../data";
 
 export default function Modals() {
   const { state } = useApp();
   if (state.modal === "quoteDetails") return <QuoteDetailsSheet />;
-  if (state.modal === "categoryDiscount") return <CategoryDiscountSheet />;
   if (state.modal === "filter") return <FilterSheet />;
   if (state.modal === "sort") return <SortSheet />;
   if (state.modal === "approveConfirm") return <DecisionConfirmSheet kind="approve" />;
@@ -83,132 +82,13 @@ function Field({ label, value }: { label: string; value: string }) {
   );
 }
 
-/* ---------------- Category discount ---------------- */
+/* Default per-category discounts — used to render the discount summary in
+   the approve/disapprove confirmation sheet. */
 const defaultPct: Record<Category, number> = {
   Products: 15,
   Services: 10,
   Subscriptions: 12,
 };
-
-function CategoryDiscountSheet() {
-  const { activeQuote: q, state, editCategory, closeModal, toast } = useApp();
-  const category = (state.modalParams?.category ?? "Products") as Category;
-  const sum = q.categories.find((c) => c.category === category);
-  const [pct, setPct] = useState<number>(
-    state.categoryEdits[category] ?? defaultPct[category]
-  );
-  const [overwrite, setOverwrite] = useState(false);
-  const baseNet = sum?.netExt ?? 0;
-  const newNet = Math.round(baseNet * (1 - pct / 100));
-  const maxStd = sum?.maxStandardPct ?? 67;
-
-  const apply = () => {
-    editCategory(category, pct);
-    toast(`${category} set to ${pct}% off`);
-    closeModal();
-  };
-
-  return (
-    <Sheet onClose={closeModal}>
-      <div className="flex items-center justify-between">
-        <h2 className="text-[18px] font-bold text-ink">Edit category discount</h2>
-        <button onClick={closeModal} className="text-mute p-1">
-          <IconClose size={20} />
-        </button>
-      </div>
-
-      <div className="mt-4 rounded-xl bg-soft px-4 py-3">
-        <div className="text-[11.5px] font-bold tracking-wide text-ink">
-          {category === "Products"
-            ? "PRODUCTS · HARDWARE & SOFTWARE"
-            : category.toUpperCase()}
-        </div>
-        <div className="text-[12px] text-mute mt-0.5">
-          {sum?.lines} lines · {fmtMoney(baseNet)} net
-        </div>
-      </div>
-
-      <div className="mt-5 text-[10.5px] font-semibold tracking-wide text-mute text-center">
-        SET DISCOUNT FOR ALL LINES
-      </div>
-      <div className="mt-3 flex items-center justify-center gap-8">
-        <button
-          onClick={() => setPct((p) => Math.max(0, p - 1))}
-          className="w-12 h-12 rounded-full border-[1.5px] border-ink flex items-center justify-center text-[24px] text-ink"
-        >
-          −
-        </button>
-        <div className="text-[44px] font-extrabold text-ink leading-none w-[120px] text-center">
-          {pct}%
-        </div>
-        <button
-          onClick={() => setPct((p) => Math.min(90, p + 1))}
-          className="w-12 h-12 rounded-full border-[1.5px] border-ink flex items-center justify-center text-[24px] text-ink"
-        >
-          +
-        </button>
-      </div>
-
-      <div className="mt-4">
-        <input
-          type="range"
-          min={0}
-          max={90}
-          value={pct}
-          onChange={(e) => setPct(Number(e.target.value))}
-          className="w-full"
-          style={{ accentColor: "#292A2E" }}
-        />
-      </div>
-
-      <div className="mt-4 flex items-center justify-between">
-        <div>
-          <div className="text-[13px] font-semibold text-ink">
-            Overwrite line-level edits
-          </div>
-          <div className="text-[11px] text-mute">
-            Off keeps custom line discounts
-          </div>
-        </div>
-        <button
-          onClick={() => setOverwrite((v) => !v)}
-          className={`w-[46px] h-7 rounded-full p-[3px] transition ${
-            overwrite ? "bg-ink" : "bg-hair"
-          }`}
-        >
-          <span
-            className={`block w-[22px] h-[22px] rounded-full bg-white transition ${
-              overwrite ? "translate-x-[18px]" : ""
-            }`}
-          />
-        </button>
-      </div>
-
-      <div className="mt-4 rounded-xl border border-ink p-3.5 flex gap-2.5 items-start">
-        <IconInfo size={17} className="text-ink shrink-0 mt-0.5" />
-        <p className="text-[12.5px] text-ink leading-snug">
-          Standard max for this category is {maxStd}%. Above needs approval and may
-          affect OIP / TIP.
-        </p>
-      </div>
-
-      <div className="mt-4 rounded-2xl bg-soft p-4 flex items-center justify-between">
-        <div>
-          <div className="text-[14px] font-semibold text-ink">New category net</div>
-          <div className="text-[11px] text-mute">{pct}% off list</div>
-        </div>
-        <div className="text-[20px] font-extrabold text-ink">{fmtMoney(newNet)}</div>
-      </div>
-
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <Button variant="secondary" onClick={closeModal}>
-          Cancel
-        </Button>
-        <Button onClick={apply}>Apply to category</Button>
-      </div>
-    </Sheet>
-  );
-}
 
 /* ---------------- Filter sheet (Quotes) ---------------- */
 function FilterSheet() {

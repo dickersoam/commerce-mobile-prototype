@@ -29,7 +29,6 @@ export type ActingKind = "colleague" | "team";
 
 export type ModalKey =
   | "quoteDetails"
-  | "categoryDiscount"
   | "filter"
   | "sort"
   | "approveConfirm"

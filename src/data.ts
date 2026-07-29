@@ -507,7 +507,7 @@ export const USER = {
   initials: "MC",
 };
 
-export const RECENT_SEARCHES = ["96043504", "PFIZER", "C9300-48P-A"];
+export const RECENT_SEARCHES = ["96043504", "Q-88213", "99961001"];
 
 // Recently viewed deals for the Home v2 landing (references real quotes so
 // tapping a row opens the correct deal).

@@ -9,12 +9,12 @@ export default function SearchResults() {
   const [q, setQ] = useState<string>(current.params?.q ?? "96043504");
 
   const query = q.trim().toLowerCase();
+  // Home search matches on Deal ID and Quote ID only.
   const matches = QUOTES.filter(
     (item) =>
       !query ||
       item.dealId.toLowerCase().includes(query) ||
-      item.quoteId.toLowerCase().includes(query) ||
-      item.customer.toLowerCase().includes(query)
+      item.quoteId.toLowerCase().includes(query)
   );
   const deals = matches;
   const quotes = matches;
@@ -26,7 +26,12 @@ export default function SearchResults() {
         <h1 className="text-[30px] font-extrabold text-ink mt-3 mb-4 tracking-tight">
           Find a deal
         </h1>
-        <SearchField value={q} onChange={setQ} onMic={() => setVoice(true)} />
+        <SearchField
+          value={q}
+          onChange={setQ}
+          onMic={() => setVoice(true)}
+          placeholder="Search by Deal ID or Quote ID"
+        />
 
         <div className="mt-4 text-[13px] font-semibold text-mute">
           {matches.length} {matches.length === 1 ? "Result" : "Results"}
@@ -35,7 +40,7 @@ export default function SearchResults() {
         {deals.length > 0 && (
           <>
             <div className="mt-4 text-[11px] font-semibold tracking-wide text-mute">
-              CUSTOMER · {deals.length}
+              DEALS · {deals.length}
             </div>
             <div className="mt-1 divide-y divide-hair border-b border-hair">
               {deals.map((d) => (
