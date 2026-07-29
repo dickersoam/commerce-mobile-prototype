@@ -43,7 +43,7 @@ export default function Home() {
         >
           <IconSearch size={20} className="text-mute" />
           <span className="flex-1 text-[15px] text-mute truncate">
-            Search by Deal ID, quote, SKU, customer…
+            Search by Deal ID or Quote ID
           </span>
           <span
             onClick={(e) => {

@@ -5,38 +5,42 @@ import { IconChevron, IconSearch, IconMic } from "../components/icons";
 import { Category, BomLine, fmtMoney } from "../data";
 import { isColor } from "../theme";
 
-const CAT_LABEL: Record<Category, string> = {
-  Products: "PRODUCTS · HARDWARE & SOFTWARE",
-  Services: "SERVICES",
-  Subscriptions: "SUBSCRIPTIONS",
-};
+const TOP_N = 10;
 
 export default function Bom() {
-  const { activeQuote, state, nav, back, openModal, setVoice } = useApp();
+  const { activeQuote, state, nav, back, openModal, setVoice, toast } = useApp();
   const q = activeQuote;
   const [filter, setFilter] = useState<"All" | Category>("All");
   const [search, setSearch] = useState("");
 
-  const hasEdits =
-    Object.keys(state.lineEdits).length > 0 ||
-    Object.keys(state.categoryEdits).length > 0;
-
   const cats: Category[] = ["Products", "Services", "Subscriptions"];
-  const shownCats = filter === "All" ? cats : [filter];
-
-  const searchLc = search.trim().toLowerCase();
-  const linesFor = (c: Category) =>
-    q.bom
-      .filter((l) => l.category === c)
-      .filter(
-        (l) =>
-          !searchLc ||
-          l.name.toLowerCase().includes(searchLc) ||
-          l.sku.toLowerCase().includes(searchLc)
-      );
-
   const chipCount = (c: Category) =>
     q.categories.find((x) => x.category === c)?.lines ?? 0;
+
+  const searchLc = search.trim().toLowerCase();
+  const searching = searchLc.length > 0;
+
+  const base = q.bom.filter((l) => filter === "All" || l.category === filter);
+  const matched = base.filter(
+    (l) =>
+      !searchLc ||
+      l.name.toLowerCase().includes(searchLc) ||
+      l.sku.toLowerCase().includes(searchLc)
+  );
+  // Default view surfaces only the top lines; the full BOM is reachable via search.
+  const visible = searching ? matched : matched.slice(0, TOP_N);
+  const hiddenCount = base.length - visible.length;
+
+  const message = searching
+    ? `${matched.length} ${matched.length === 1 ? "result" : "results"}`
+    : base.length > TOP_N
+    ? `Showing top ${TOP_N} of ${base.length} lines · search by SKU or product name to find the rest`
+    : `${base.length} ${base.length === 1 ? "line" : "lines"}`;
+
+  const saveBom = () => {
+    toast("BOM saved");
+    nav("dealDetails", { dealId: q.dealId });
+  };
 
   return (
     <div className="h-full flex flex-col bg-white">
@@ -60,7 +64,7 @@ export default function Bom() {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by Deal ID, quote, SKU, customer…"
+              placeholder="Search by SKU or product name"
               className="flex-1 bg-transparent outline-none text-[15px] text-ink placeholder:text-mute"
             />
             <button
@@ -88,47 +92,36 @@ export default function Bom() {
         </div>
       </div>
 
-      <div className="px-[22px] pt-2 pb-1 text-[11px] font-semibold tracking-wide text-mute">
-        BILL OF MATERIALS
+      <div className="px-[22px] pt-2 pb-1">
+        <div className="text-[11px] font-semibold tracking-wide text-mute">
+          BILL OF MATERIALS
+        </div>
+        <div className="text-[12px] text-mute mt-0.5">{message}</div>
       </div>
 
       {/* list */}
       <div className="flex-1 overflow-y-auto no-scrollbar pb-[168px]">
-        {shownCats.map((c) => {
-          const sum = q.categories.find((x) => x.category === c);
-          const lines = linesFor(c);
-          if (lines.length === 0) return null;
-          return (
-            <div key={c}>
-              <button
-                onClick={() => openModal("categoryDiscount", { category: c })}
-                className="w-full sticky top-0 bg-soft/95 backdrop-blur px-[22px] py-2.5 flex items-center justify-between border-y border-hair"
-              >
-                <span className="text-[11.5px] font-bold tracking-wide text-ink">
-                  {CAT_LABEL[c]}
-                </span>
-                <span className="text-[11px] text-mute flex items-center gap-2">
-                  {sum ? `${sum.lines} · ${fmtMoney(sum.netExt)}` : ""}
-                  <span
-                    className={`font-semibold flex items-center ${
-                      isColor ? "text-primary" : "text-ink"
-                    }`}
-                  >
-                    Edit % <IconChevron size={13} />
-                  </span>
-                </span>
-              </button>
-              {lines.map((l) => (
-                <LineRow
-                  key={l.id}
-                  line={l}
-                  edit={state.lineEdits[l.id]}
-                  onClick={() => nav("lineDiscount", { lineId: l.id })}
-                />
-              ))}
-            </div>
-          );
-        })}
+        {visible.map((l) => (
+          <LineRow
+            key={l.id}
+            line={l}
+            edit={state.lineEdits[l.id]}
+            onClick={() => nav("lineDiscount", { lineId: l.id })}
+          />
+        ))}
+
+        {visible.length === 0 && (
+          <div className="px-[22px] py-14 text-center text-[14px] text-mute">
+            No lines match “{search}”.
+          </div>
+        )}
+
+        {!searching && hiddenCount > 0 && (
+          <div className="px-[22px] py-4 text-center text-[12.5px] text-mute">
+            {hiddenCount} more {hiddenCount === 1 ? "line" : "lines"} · search to
+            find a specific SKU or product
+          </div>
+        )}
       </div>
 
       {/* footer */}
@@ -136,9 +129,7 @@ export default function Bom() {
         <Button variant="secondary" onClick={back}>
           Cancel
         </Button>
-        <Button disabled={!hasEdits} onClick={() => nav("submit")}>
-          Review
-        </Button>
+        <Button onClick={saveBom}>Save BOM</Button>
       </div>
 
       <TalkFab />
@@ -161,16 +152,13 @@ function LineRow({
   return (
     <button
       onClick={onClick}
-      className={`w-full px-[22px] py-3 flex items-start gap-3 text-left border-b border-hair ${
+      className={`w-full px-[22px] py-3 flex items-center gap-3 text-left border-b border-hair ${
         edited ? "bg-edit" : "active:bg-soft"
       }`}
     >
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5">
-          <span className="text-[15px] font-bold text-ink truncate">
-            {line.name}
-          </span>
-          <IconChevron size={14} className="text-mute shrink-0" />
+        <div className="text-[15px] font-bold text-ink truncate">
+          {line.name}
         </div>
         <div className="text-[12px] text-mute mt-0.5 truncate">
           {line.sku} · Qty {line.qty}
@@ -194,6 +182,8 @@ function LineRow({
           {pct}% OFF
         </div>
       </div>
+      {/* Affordance: tap a line to edit its discount */}
+      <IconChevron size={22} className="text-mute shrink-0 -mr-1" />
     </button>
   );
 }

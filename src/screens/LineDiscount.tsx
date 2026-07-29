@@ -5,7 +5,7 @@ import { IconInfo } from "../components/icons";
 import { fmtMoney } from "../data";
 
 export default function LineDiscount() {
-  const { activeQuote, current, state, editLine, back, toast } = useApp();
+  const { activeQuote, current, state, editLine, back, nav } = useApp();
   const lineId = current.params?.lineId as string;
   const line = activeQuote.bom.find((l) => l.id === lineId) ?? activeQuote.bom[0];
 
@@ -20,10 +20,10 @@ export default function LineDiscount() {
   const catWord =
     line.category === "Products" ? "Networking" : line.category;
 
-  const apply = () => {
+  // Save the pending edit and open the "Confirm Discount change" slide-up.
+  const review = () => {
     editLine(line.id, { discountPct: pct, netExt: net });
-    toast("Line discount applied");
-    back();
+    nav("submit");
   };
 
   const barPct = useMemo(() => Math.min(100, (pct / 50) * 100), [pct]);
@@ -158,7 +158,7 @@ export default function LineDiscount() {
         <Button variant="secondary" onClick={back}>
           Cancel
         </Button>
-        <Button onClick={apply}>Apply Discount</Button>
+        <Button onClick={review}>Review</Button>
       </div>
     </div>
   );
