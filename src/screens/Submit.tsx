@@ -5,7 +5,7 @@ import { IconClose } from "../components/icons";
 import { fmtMoney } from "../data";
 
 export default function Submit() {
-  const { activeQuote: q, state, back, nav, toast } = useApp();
+  const { activeQuote: q, state, back, toast } = useApp();
   const [note, setNote] = useState("");
 
   const edits = Object.entries(state.lineEdits);
@@ -61,7 +61,10 @@ export default function Submit() {
           <Button
             onClick={() => {
               toast("Discount change saved");
-              nav("dealDetails", { dealId: q.dealId });
+              // Pop the confirm sheet and the line editor to land back on the BOM,
+              // so the user can keep editing lines before "Save BOM".
+              back();
+              back();
             }}
           >
             Confirm
