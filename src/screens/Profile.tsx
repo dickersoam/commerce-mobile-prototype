@@ -5,7 +5,7 @@ import { IconChevron } from "../components/icons";
 import { USER } from "../data";
 
 export default function Profile() {
-  const { nav, state, toast } = useApp();
+  const { nav, state, toast, signOut } = useApp();
   const proxyValue = state.actingAs
     ? `Acting as ${state.actingAs}`
     : "Acting as yourself";
@@ -53,7 +53,7 @@ export default function Profile() {
 
         <Group label="SUPPORT">
           <Item title="Help & feedback" onClick={() => toast("Help & feedback")} />
-          <Item title="Sign out" onClick={() => toast("Signed out")} />
+          <Item title="Sign out" onClick={signOut} />
         </Group>
       </div>
 

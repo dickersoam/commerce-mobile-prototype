@@ -1,7 +1,13 @@
 import React from "react";
 import { useApp } from "../store";
 import { StatusBar, TabBar, TalkFab, StatusPill } from "../components/ui";
-import { IconSearch, IconMic, IconChevron, IconArrowDown } from "../components/icons";
+import {
+  IconSearch,
+  IconMic,
+  IconChevron,
+  IconArrowDown,
+  IconCiscoLogo,
+} from "../components/icons";
 import { QUOTES, RECENT_SEARCHES, RECENTLY_VIEWED } from "../data";
 import { isColor } from "../theme";
 
@@ -19,6 +25,9 @@ export default function Home() {
     <div className="h-full flex flex-col bg-white">
       <StatusBar />
       <div className="flex-1 overflow-y-auto no-scrollbar px-[22px] pb-[110px]">
+        <div className="pt-3 pb-1">
+          <IconCiscoLogo height={20} className="text-ink" />
+        </div>
         <h1 className="text-[28px] font-extrabold text-ink mt-3 tracking-tight leading-tight">
           Welcome back
         </h1>

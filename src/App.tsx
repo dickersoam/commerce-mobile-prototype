@@ -17,6 +17,7 @@ import Profile from "./screens/Profile";
 import { ProxyChoose, ProxyActing } from "./screens/Proxy";
 import Modals from "./screens/Modals";
 import Voice from "./screens/Voice";
+import Login from "./screens/Login";
 
 const screens: Record<ScreenKey, React.FC> = {
   home: Home,
@@ -41,9 +42,15 @@ function Device() {
   const Screen = screens[current.screen] ?? Home;
   return (
     <PhoneFrame>
-      <div key={state.stack.length + current.screen} className="h-full animate-screen">
-        <Screen />
-      </div>
+      {state.authed ? (
+        <div key={state.stack.length + current.screen} className="h-full animate-screen">
+          <Screen />
+        </div>
+      ) : (
+        <div key="login" className="h-full animate-screen">
+          <Login />
+        </div>
+      )}
       <Modals />
       {state.voiceOpen && <Voice />}
       {state.toast && <Toast msg={state.toast} />}
