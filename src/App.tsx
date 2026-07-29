@@ -14,7 +14,12 @@ import Decision from "./screens/Decision";
 import Quotes from "./screens/Quotes";
 import Notifications from "./screens/Notifications";
 import Profile from "./screens/Profile";
-import { ProxyChoose, ProxyActing } from "./screens/Proxy";
+import {
+  ProxyChoose,
+  ProxyDelegate,
+  ProxyTeam,
+  ProxyActing,
+} from "./screens/Proxy";
 import Modals from "./screens/Modals";
 import Voice from "./screens/Voice";
 import Login from "./screens/Login";
@@ -33,7 +38,8 @@ const screens: Record<ScreenKey, React.FC> = {
   notifications: Notifications,
   profile: Profile,
   proxyChoose: ProxyChoose,
-  proxyDelegate: ProxyChoose,
+  proxyDelegate: ProxyDelegate,
+  proxyTeam: ProxyTeam,
   proxyActing: ProxyActing,
 };
 

@@ -22,7 +22,10 @@ export type ScreenKey =
   | "profile"
   | "proxyChoose"
   | "proxyDelegate"
+  | "proxyTeam"
   | "proxyActing";
+
+export type ActingKind = "colleague" | "team";
 
 export type ModalKey =
   | "quoteDetails"
@@ -50,6 +53,7 @@ interface State {
   submitted: boolean;
   readIds: string[];
   actingAs: string | null;
+  actingKind: ActingKind | null;
   voiceOpen: boolean;
   toast: string | null;
 }
@@ -65,7 +69,7 @@ type Action =
   | { type: "EDIT_CATEGORY"; category: string; pct: number }
   | { type: "SET_SUBMITTED"; v: boolean }
   | { type: "MARK_ALL_READ" }
-  | { type: "SET_ACTING"; who: string | null }
+  | { type: "SET_ACTING"; who: string | null; kind?: ActingKind }
   | { type: "VOICE"; open: boolean }
   | { type: "TOAST"; msg: string | null }
   | { type: "SIGN_IN" }
@@ -83,6 +87,7 @@ const initial: State = {
   submitted: false,
   readIds: [],
   actingAs: null,
+  actingKind: null,
   voiceOpen: false,
   toast: null,
 };
@@ -129,7 +134,11 @@ function reducer(state: State, action: Action): State {
     case "MARK_ALL_READ":
       return { ...state, readIds: NOTIFICATIONS.map((n) => n.id) };
     case "SET_ACTING":
-      return { ...state, actingAs: action.who };
+      return {
+        ...state,
+        actingAs: action.who,
+        actingKind: action.who ? action.kind ?? "colleague" : null,
+      };
     case "VOICE":
       return { ...state, voiceOpen: action.open };
     case "TOAST":
@@ -156,7 +165,7 @@ interface Ctx {
   editCategory: (category: string, pct: number) => void;
   setSubmitted: (v: boolean) => void;
   markAllRead: () => void;
-  setActing: (who: string | null) => void;
+  setActing: (who: string | null, kind?: ActingKind) => void;
   setVoice: (open: boolean) => void;
   toast: (msg: string) => void;
   signIn: () => void;
@@ -205,7 +214,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   );
   const markAllRead = useCallback(() => dispatch({ type: "MARK_ALL_READ" }), []);
   const setActing = useCallback(
-    (who: string | null) => dispatch({ type: "SET_ACTING", who }),
+    (who: string | null, kind?: ActingKind) =>
+      dispatch({ type: "SET_ACTING", who, kind }),
     []
   );
   const setVoice = useCallback(

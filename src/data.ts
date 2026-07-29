@@ -473,11 +473,32 @@ export const PROXY_QUOTES: ProxyQuote[] = [
   },
 ];
 
-export const PROXY_DELEGATES = [
-  { name: "David Okafor", role: "Account Executive · AMER", initials: "DO" },
-  { name: "Sofia Alvarez", role: "Regional Manager · AMER", initials: "SA" },
-  { name: "Liam Chen", role: "Operations Director · APJC", initials: "LC" },
-  { name: "Priya Nair", role: "Account Executive · EMEA", initials: "PN" },
+export interface ProxyDelegate {
+  name: string;
+  role: string;
+  initials: string;
+  userId: string;
+  email: string;
+  cc: boolean;
+}
+
+export const PROXY_DELEGATES: ProxyDelegate[] = [
+  { name: "David Okafor", role: "Account Executive · AMER", initials: "DO", userId: "dokafor", email: "dokafor@cisco.com", cc: true },
+  { name: "Priya Nair", role: "Account Executive · EMEA", initials: "PN", userId: "pnair", email: "pnair@cisco.com", cc: false },
+  { name: "Tom Becker", role: "Operations Director · APJC", initials: "TB", userId: "tbecker", email: "tbecker@cisco.com", cc: true },
+  { name: "Sofia Alvarez", role: "Regional Manager · AMER", initials: "SA", userId: "salvarez", email: "salvarez@cisco.com", cc: true },
+];
+
+export interface ProxyTeam {
+  name: string;
+  openQuotes: number;
+}
+
+export const PROXY_TEAMS: ProxyTeam[] = [
+  { name: "Account Team A", openQuotes: 12 },
+  { name: "Account Team B", openQuotes: 7 },
+  { name: "Account Team C", openQuotes: 3 },
+  { name: "Account Team D", openQuotes: 5 },
 ];
 
 export const USER = {
