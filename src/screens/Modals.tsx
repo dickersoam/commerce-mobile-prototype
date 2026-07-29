@@ -280,11 +280,12 @@ function DecisionConfirmSheet({ kind }: { kind: "approve" | "disapprove" }) {
 
   const confirm = () => {
     if (!canConfirm) return;
-    nav("decision", {
-      dealId: q.dealId,
-      outcome: approve ? "approved" : "disapproved",
-      reason: approve ? note : reason,
-    });
+    if (approve) {
+      // Approving pushes the quote up the chain → always land on the submitted page.
+      nav("submitted", { dealId: q.dealId });
+      return;
+    }
+    nav("decision", { dealId: q.dealId, outcome: "disapproved", reason });
   };
 
   return (
