@@ -36,6 +36,7 @@ export interface LineEdit {
 }
 
 interface State {
+  authed: boolean;
   stack: { screen: ScreenKey; params?: Record<string, any> }[];
   modal: ModalKey;
   modalParams: Record<string, any>;
@@ -63,9 +64,12 @@ type Action =
   | { type: "MARK_ALL_READ" }
   | { type: "SET_ACTING"; who: string | null }
   | { type: "VOICE"; open: boolean }
-  | { type: "TOAST"; msg: string | null };
+  | { type: "TOAST"; msg: string | null }
+  | { type: "SIGN_IN" }
+  | { type: "SIGN_OUT" };
 
 const initial: State = {
+  authed: true,
   stack: [{ screen: "home" }],
   modal: null,
   modalParams: {},
@@ -127,6 +131,10 @@ function reducer(state: State, action: Action): State {
       return { ...state, voiceOpen: action.open };
     case "TOAST":
       return { ...state, toast: action.msg };
+    case "SIGN_IN":
+      return { ...state, authed: true, stack: [{ screen: "home" }], modal: null, voiceOpen: false };
+    case "SIGN_OUT":
+      return { ...state, authed: false, stack: [{ screen: "home" }], modal: null, voiceOpen: false };
     default:
       return state;
   }
@@ -148,6 +156,8 @@ interface Ctx {
   setActing: (who: string | null) => void;
   setVoice: (open: boolean) => void;
   toast: (msg: string) => void;
+  signIn: () => void;
+  signOut: () => void;
   activeQuote: typeof QUOTES[number];
 }
 
@@ -203,6 +213,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: "TOAST", msg });
     window.setTimeout(() => dispatch({ type: "TOAST", msg: null }), 2200);
   }, []);
+  const signIn = useCallback(() => dispatch({ type: "SIGN_IN" }), []);
+  const signOut = useCallback(() => dispatch({ type: "SIGN_OUT" }), []);
 
   const current = state.stack[state.stack.length - 1];
   const selected =
@@ -228,6 +240,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setActing,
       setVoice,
       toast,
+      signIn,
+      signOut,
       activeQuote,
     }),
     [
@@ -246,6 +260,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setActing,
       setVoice,
       toast,
+      signIn,
+      signOut,
       activeQuote,
     ]
   );
